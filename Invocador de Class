@@ -1,0 +1,26 @@
+global class InvocavelClass {
+    public class entradasdoFlow{
+        @invocableVariable(label='Id do Imóvel')
+        public Id recordId;
+    }
+    @invocableMethod(label='Verifica imóveis com negligência')
+    public static void atualizaImoveis(List<entradasdoFlow> inputs){
+    	List<Imoveis__c> imvList = new List<Imoveis__c>();
+        for(entradasdoFlow edf : inputs){
+            imvList.add([SELECT id, LastModifiedDate, Negligencia__c FROM Imoveis__c WHERE id =: edf.recordId]);
+        }
+        for(Imoveis__c imv : imvList){
+            Integer diasEntre = Date.valueOf(imv.LastModifiedDate).daysBetween(system.today());
+            if(diasEntre > 3 && diasEntre <= 10 && (imv.Negligencia__c == '' || imv.Negligencia__c == null)){
+            	imv.Negligencia__c = 'de 3 a 10 dias';    
+            }
+            if(diasEntre > 10 && diasEntre <= 15 && imv.Negligencia__c != 'de 10 a 15 dias'){
+                imv.Negligencia__c = 'de 10 a 15 dias';
+            }
+            if(diasEntre > 15 && imv.Negligencia__c != 'mais de 15 dias'){
+                imv.Negligencia__c = 'mais de 15 dias';
+            }
+        }
+        update imvList;
+    }
+}
